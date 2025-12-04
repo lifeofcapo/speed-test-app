@@ -1,8 +1,18 @@
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+
 import { AppModule } from './app.module';
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT ?? 3000);
+  const port = app.get(ConfigService).get<number>('SERVER_PORT', 8080);
+
+  app.setGlobalPrefix('api');
+  app.enableCors();
+
+  await app.listen(port);
 }
-bootstrap();
+
+bootstrap().catch((error: Error) => {
+  console.error('Failed to start server:', error.message);
+});
